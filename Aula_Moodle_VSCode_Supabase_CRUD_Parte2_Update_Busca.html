@@ -1,0 +1,437 @@
+<div style="width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 16px 32px; font-family: Arial, Helvetica, sans-serif; color: #2d3436; box-sizing: border-box;">
+
+  <!-- HEADER -->
+  <div style="margin-bottom: 32px;">
+    <div style="background: linear-gradient(135deg, #2986CC 0%, #1e5799 50%, #207cca 100%); border-radius: 30px; min-height: 120px; display: flex; align-items: center; justify-content: center; gap: 16px; text-align: center; color: #fff; padding: 24px 32px; box-shadow: 0 15px 35px rgba(41,134,204,0.25); border: 2px solid rgba(255,255,255,0.2);">
+      <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 0 20px rgba(255,255,255,0.2);">🧩</div>
+      <div>
+        <div style="font-size: 0.75rem; opacity: 0.9; letter-spacing: 3px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">
+          PROGRAMAÇÃO PARA BANCO DE DADOS • AULA 2 (CONTINUAÇÃO)</div>
+        <div style="font-size: 2rem; font-weight: 900; letter-spacing: 1px;">
+          Evolução do CRUD no Supabase: UPDATE no formulário + Busca + Validações</div>
+        <div style="margin-top: 10px; font-size: 1rem; opacity: 0.95;">
+          Professor: <strong>Ms. Ricardo Loureiro Soares</strong> • 2 aulas (40 min + 40 min)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div style="background: #ffffff; border-radius: 24px; padding: 32px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); margin-bottom: 32px; border: 1px solid rgba(0,0,0,0.06);">
+    <p style="margin: 0 0 16px; color: #636e72; line-height: 1.8; font-size: 1.05rem;">
+      Na aula anterior, você conseguiu <strong>conectar o React ao Supabase</strong> e já fez o ciclo básico: <strong>listar (SELECT)</strong>, <strong>cadastrar (INSERT)</strong> e <strong>excluir (DELETE)</strong>.
+      Agora vamos deixar o sistema mais “de verdade”: vamos implementar <strong>edição (UPDATE)</strong> diretamente no formulário, criar <strong>busca/filtro</strong> e aplicar <strong>validações</strong> para reduzir erros.</p>
+    <p style="margin: 0; color: #636e72; line-height: 1.8; font-size: 1.05rem;">
+      O objetivo é que você entenda bem a ideia principal: <strong>cada botão na tela vira uma operação no banco</strong>, e a segurança (RLS) decide se a operação é permitida ou bloqueada.</p>
+  </div>
+
+  <!-- HEADER OBJETIVOS -->
+  <div style="margin-bottom: 32px;">
+    <div style="background: linear-gradient(135deg, #6C5CE7 0%, #5B4BC4 50%, #7F6BFF 100%); border-radius: 30px; min-height: 120px; display: flex; align-items: center; justify-content: center; gap: 16px; text-align: center; color: #fff; padding: 24px 32px; box-shadow: 0 15px 35px rgba(108,92,231,0.25); border: 2px solid rgba(255,255,255,0.2);">
+      <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 2rem;">🎯</div>
+      <div>
+        <div style="font-size: 0.75rem; opacity: 0.9; letter-spacing: 3px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">
+          AO FINAL DESTA AULA, VOCÊ CONSEGUE…</div>
+        <div style="font-size: 2rem; font-weight: 900; letter-spacing: 1px;">
+          Aplicar UPDATE + Busca + Regras de qualidade</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARDS -->
+  <div style="margin-bottom: 32px;">
+    <table style="width: 100%; border-collapse: separate; border-spacing: 16px;">
+      <tbody>
+        <tr>
+          <td style="width: 33.33%; vertical-align: top; background: #fff; border-radius: 24px; padding: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); border-left: 6px solid #2986CC;">
+            <div style="font-size: 2rem; margin-bottom: 16px;">✏️</div>
+            <h5 style="margin: 0 0 16px; font-weight: bold; color: #2986cc;">Editar alunos (UPDATE)</h5>
+            <p style="margin: 0; color: #636e72; line-height: 1.7;">
+              Clicar em “Editar”, carregar dados no formulário e salvar com <code>update</code> + <code>eq('id', ...)</code>.</p>
+          </td>
+          <td style="width: 33.33%; vertical-align: top; background: #fff; border-radius: 24px; padding: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); border-left: 6px solid #FF6B6B;">
+            <div style="font-size: 2rem; margin-bottom: 16px;">🔎</div>
+            <h5 style="margin: 0 0 16px; font-weight: bold; color: #ff6b6b;">Buscar e ordenar</h5>
+            <p style="margin: 0; color: #636e72; line-height: 1.7;">
+              Filtrar por curso e ordenar por nome, deixando a listagem mais útil para o usuário.</p>
+          </td>
+          <td style="width: 33.33%; vertical-align: top; background: #fff; border-radius: 24px; padding: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); border-left: 6px solid #00B894;">
+            <div style="font-size: 2rem; margin-bottom: 16px;">✅</div>
+            <h5 style="margin: 0 0 16px; font-weight: bold; color: #00b894;">Validar e testar</h5>
+            <p style="margin: 0; color: #636e72; line-height: 1.7;">
+              Impedir cadastro com nome vazio, tratar erros e comprovar o teste na tela e no Supabase.</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- HEADER ROTEIRO -->
+  <div style="margin-bottom: 32px;">
+    <div style="background: linear-gradient(135deg, #FF6B6B 0%, #ee5a52 50%, #ff5252 100%); border-radius: 30px; min-height: 120px; display: flex; align-items: center; justify-content: center; gap: 16px; text-align: center; color: #fff; padding: 24px 32px; box-shadow: 0 15px 35px rgba(255,107,107,0.25); border: 2px solid rgba(255,255,255,0.2);">
+      <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 2rem;">📝</div>
+      <div>
+        <div style="font-size: 0.75rem; opacity: 0.9; letter-spacing: 3px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">
+          ROTEIRO (2 AULAS)</div>
+        <div style="font-size: 2rem; font-weight: 900; letter-spacing: 1px;">
+          O que vamos fazer em 80 minutos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRONOGRAMA -->
+  <div style="margin-bottom: 32px;">
+    <h5 style="font-size: 1.4rem; border-left: 5px solid #2986CC; padding-left: 20px; color: #2986cc; margin-bottom: 24px; font-weight: bold;">
+      Organização do tempo (conteúdo + prática)</h5>
+
+    <table style="width: 100%; border-collapse: separate; border-spacing: 16px;">
+      <tbody>
+        <tr>
+          <td style="width: 25%; vertical-align: top; background: #fff; border-radius: 25px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.08);">
+            <div style="background: linear-gradient(135deg, #2986CC, #1e5799); color: #fff; text-align: center; padding: 24px 16px;">
+              <h5 style="margin: 0;">AULA 1</h5>
+              <small>40 min</small>
+            </div>
+            <div style="padding: 24px;">
+              <ul style="margin: 0; padding-left: 18px; color: #636e72; line-height: 1.8;">
+                <li>Revisão rápida do CRUD</li>
+                <li>Implementar botão “Editar”</li>
+                <li>Salvar alterações com UPDATE</li>
+              </ul>
+            </div>
+          </td>
+
+          <td style="width: 25%; vertical-align: top; background: #fff; border-radius: 25px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.08);">
+            <div style="background: linear-gradient(135deg, #FF6B6B, #ee5a52); color: #fff; text-align: center; padding: 24px 16px;">
+              <h5 style="margin: 0;">AULA 2</h5>
+              <small>40 min</small>
+            </div>
+            <div style="padding: 24px;">
+              <ul style="margin: 0; padding-left: 18px; color: #636e72; line-height: 1.8;">
+                <li>Busca por curso</li>
+                <li>Ordenação + validações</li>
+                <li>Atividade avaliativa</li>
+              </ul>
+            </div>
+          </td>
+
+          <td style="width: 25%; vertical-align: top; background: #fff; border-radius: 25px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.08);">
+            <div style="background: linear-gradient(135deg, #00B894, #00A085); color: #fff; text-align: center; padding: 24px 16px;">
+              <h5 style="margin: 0;">EXTRA</h5>
+              <small>Se der tempo</small>
+            </div>
+            <div style="padding: 24px;">
+              <ul style="margin: 0; padding-left: 18px; color: #636e72; line-height: 1.8;">
+                <li>Adicionar campo “telefone”</li>
+                <li>Update do telefone</li>
+                <li>RLS: bloquear e observar erros</li>
+              </ul>
+            </div>
+          </td>
+
+          <td style="width: 25%; vertical-align: top; background: #fff; border-radius: 25px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.08);">
+            <div style="background: linear-gradient(135deg, #F39C12, #E67E22); color: #fff; text-align: center; padding: 24px 16px;">
+              <h5 style="margin: 0;">FECHAMENTO</h5>
+              <small>Entrega</small>
+            </div>
+            <div style="padding: 24px;">
+              <ul style="margin: 0; padding-left: 18px; color: #636e72; line-height: 1.8;">
+                <li>Checklist de teste</li>
+                <li>Prints (tela + Supabase)</li>
+                <li>Enviar no Moodle</li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- HEADER CONTEÚDO -->
+  <div style="margin-bottom: 32px;">
+    <div style="background: linear-gradient(135deg, #00B894 0%, #00A085 50%, #00CEC9 100%); border-radius: 30px; min-height: 120px; display: flex; align-items: center; justify-content: center; gap: 16px; text-align: center; color: #fff; padding: 24px 32px; box-shadow: 0 15px 35px rgba(0,184,148,0.25); border: 2px solid rgba(255,255,255,0.2);">
+      <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 2rem;">📚</div>
+      <div>
+        <div style="font-size: 0.75rem; opacity: 0.9; letter-spacing: 3px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">
+          CONTEÚDO + PRÁTICA</div>
+        <div style="font-size: 2rem; font-weight: 900; letter-spacing: 1px;">
+          1) Update no formulário (modo “editar”)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCO CONCEITO UPDATE -->
+  <div style="background: #fff; border-radius: 24px; padding: 32px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); margin-bottom: 32px; border-left: 8px solid #2986CC;">
+    <h4 style="margin: 0 0 16px; color: #2986cc; font-weight: bold;">Ideia principal</h4>
+    <p style="margin: 0 0 16px; color: #636e72; line-height: 1.8;">
+      Para editar, precisamos de 3 coisas:</p>
+    <ol style="margin: 0; padding-left: 20px; color: #636e72; line-height: 1.8;">
+      <li>Um botão <strong>Editar</strong> em cada item da lista.</li>
+      <li>Ao clicar, carregar os dados desse aluno nos inputs (nome/email/curso).</li>
+      <li>Ao salvar, executar <code>update()</code> com filtro <code>eq('id', idDoAluno)</code> para não alterar todo mundo.</li>
+    </ol>
+  </div>
+
+  <!-- EXEMPLO UPDATE (TRECHO) -->
+  <div style="background: #fff; border-radius: 24px; padding: 32px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); margin-bottom: 32px; border-left: 8px solid #6C5CE7;">
+    <h4 style="margin: 0 0 16px; color: #6c5ce7; font-weight: bold;">Trecho essencial (App.jsx): estados + função editar + salvar</h4>
+    <p style="margin: 0 0 20px; color: #636e72; line-height: 1.8;">
+      Copie e adapte no seu <code>App.jsx</code>. (Você vai encaixar no seu código atual.)</p>
+
+    <div style="background: #1e1e1e; color: #fff; padding: 18px; border-radius: 16px; font-family: Consolas, monospace; overflow-x: auto; line-height: 1.7;">
+      <pre style="margin:0; white-space: pre; font-family: Consolas, monospace;">
+// 1) novo estado para controlar edição
+const [editandoId, setEditandoId] = useState(null);
+
+// 2) quando clicar em Editar, carregue os dados no formulário
+function editarAluno(aluno) {
+  setEditandoId(aluno.id);
+  setNome(aluno.nome ?? '');
+  setEmail(aluno.email ?? '');
+  setCurso(aluno.curso ?? '');
+}
+
+// 3) uma função "salvar" que decide: INSERT ou UPDATE
+async function salvarAluno(event) {
+  event.preventDefault();
+
+  // validação simples
+  if (nome.trim() === '') {
+    alert('O nome é obrigatório.');
+    return;
+  }
+
+  if (editandoId === null) {
+    // CREATE (insert)
+    const { error } = await supabase
+      .from('alunos')
+      .insert([{ nome, email, curso }]);
+
+    if (error) { console.error(error.message); return; }
+  } else {
+    // UPDATE (update) - SEMPRE COM FILTRO
+    const { error } = await supabase
+      .from('alunos')
+      .update({ nome, email, curso })
+      .eq('id', editandoId);
+
+    if (error) { console.error(error.message); return; }
+  }
+
+  // limpa o formulário e sai do modo edição
+  setNome(''); setEmail(''); setCurso('');
+  setEditandoId(null);
+
+  // atualiza a lista na tela
+  listarAlunos();
+}</pre>
+    </div>
+
+    <div style="margin-top: 24px; padding: 20px; border-radius: 20px; background: #fffdf1; border: 1px solid #ffe8a3; line-height: 1.8;">
+      <strong>Dica:</strong> quando <code>editandoId</code> for diferente de <code>null</code>, seu botão pode trocar de “Cadastrar” para “Salvar alterações”.</div>
+  </div>
+
+  <!-- EXEMPLO BOTÕES NA LISTA -->
+  <div style="background: #fff; border-radius: 24px; padding: 32px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); margin-bottom: 32px; border-left: 8px solid #6C5CE7;">
+    <h4 style="margin: 0 0 16px; color: #6c5ce7; font-weight: bold;">Botões na lista: Editar e Excluir</h4>
+    <div style="background: #1e1e1e; color: #fff; padding: 18px; border-radius: 16px; font-family: Consolas, monospace; overflow-x: auto; line-height: 1.7;">
+      <pre style="margin:0; white-space: pre; font-family: Consolas, monospace;">
+{alunos.map((aluno) => (
+  <li key={aluno.id}>
+    {aluno.nome} - {aluno.email} - {aluno.curso}
+
+    <button onClick={() => editarAluno(aluno)}>
+      Editar
+    </button>
+
+    <button onClick={() => excluirAluno(aluno.id)}>
+      Excluir
+    </button>
+  </li>
+))}</pre>
+    </div>
+  </div>
+
+  <!-- HEADER BUSCA -->
+  <div style="margin-bottom: 32px;">
+    <div style="background: linear-gradient(135deg, #00B894 0%, #00A085 50%, #00CEC9 100%); border-radius: 30px; min-height: 120px; display: flex; align-items: center; justify-content: center; gap: 16px; text-align: center; color: #fff; padding: 24px 32px; box-shadow: 0 15px 35px rgba(0,184,148,0.25); border: 2px solid rgba(255,255,255,0.2);">
+      <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 2rem;">🔎</div>
+      <div>
+        <div style="font-size: 0.75rem; opacity: 0.9; letter-spacing: 3px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">
+          CONTEÚDO + PRÁTICA</div>
+        <div style="font-size: 2rem; font-weight: 900; letter-spacing: 1px;">
+          2) Busca por curso + ordenação por nome</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCO BUSCA -->
+  <div style="background: #fff; border-radius: 24px; padding: 32px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); margin-bottom: 32px; border-left: 8px solid #2986CC;">
+    <h4 style="margin: 0 0 16px; color: #2986cc; font-weight: bold;">Como funciona a busca</h4>
+    <p style="margin: 0; color: #636e72; line-height: 1.8;">
+      A busca (filtro) é só uma condição a mais no <code>select</code>. Exemplo:
+      se o aluno digitar “Info”, a aplicação lista apenas os alunos cujo curso contenha “Info”.</p>
+  </div>
+
+  <!-- EXEMPLO BUSCA NO listarAlunos -->
+  <div style="background: #fff; border-radius: 24px; padding: 32px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); margin-bottom: 32px; border-left: 8px solid #6C5CE7;">
+    <h4 style="margin: 0 0 16px; color: #6c5ce7; font-weight: bold;">Trecho (App.jsx): filtroCurso + listarAlunos com filtro</h4>
+
+    <div style="background: #1e1e1e; color: #fff; padding: 18px; border-radius: 16px; font-family: Consolas, monospace; overflow-x: auto; line-height: 1.7;">
+      <pre style="margin:0; white-space: pre; font-family: Consolas, monospace;">
+const [filtroCurso, setFiltroCurso] = useState('');
+
+async function listarAlunos() {
+  let query = supabase
+    .from('alunos')
+    .select('*')
+    .order('nome', { ascending: true });
+
+  // se tiver filtro, aplica (contém / ignorando maiúsculas e minúsculas)
+  if (filtroCurso.trim() !== '') {
+    query = query.ilike('curso', '%' + filtroCurso.trim() + '%');
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error(error.message);
+    return;
+  }
+
+  setAlunos(data);
+}</pre>
+    </div>
+
+    <div style="margin-top: 24px; padding: 20px; border-radius: 20px; background: #f4f8ff; border: 1px solid #d9e7ff; line-height: 1.8;">
+      <strong>Dica:</strong> <code>order('nome')</code> deixa a lista organizada e facilita encontrar um aluno.</div>
+  </div>
+
+  <!-- INPUT DE BUSCA -->
+  <div style="background: #fff; border-radius: 24px; padding: 32px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); margin-bottom: 32px; border-left: 8px solid #6C5CE7;">
+    <h4 style="margin: 0 0 16px; color: #6c5ce7; font-weight: bold;">Input de busca (na tela)</h4>
+    <div style="background: #1e1e1e; color: #fff; padding: 18px; border-radius: 16px; font-family: Consolas, monospace; overflow-x: auto; line-height: 1.7;">
+      <pre style="margin:0; white-space: pre; font-family: Consolas, monospace;">
+<input
+  type="text"
+  placeholder="Buscar por curso (ex.: Informática)"
+  value={filtroCurso}
+  onChange={(e) => setFiltroCurso(e.target.value)}
+/>
+
+<button type="button" onClick={listarAlunos}>
+  Buscar
+</button>
+
+<button type="button" onClick={() => { setFiltroCurso(''); listarAlunos(); }}>
+  Limpar
+</button></pre>
+    </div>
+  </div>
+
+  <!-- HEADER TELEFONE -->
+  <div style="margin-bottom: 32px;">
+    <div style="background: linear-gradient(135deg, #00B894 0%, #00A085 50%, #00CEC9 100%); border-radius: 30px; min-height: 120px; display: flex; align-items: center; justify-content: center; gap: 16px; text-align: center; color: #fff; padding: 24px 32px; box-shadow: 0 15px 35px rgba(0,184,148,0.25); border: 2px solid rgba(255,255,255,0.2);">
+      <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 2rem;">📞</div>
+      <div>
+        <div style="font-size: 0.75rem; opacity: 0.9; letter-spacing: 3px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">
+          EXTRA (SE DER TEMPO)</div>
+        <div style="font-size: 2rem; font-weight: 900; letter-spacing: 1px;">
+          3) Adicionar o campo “telefone”</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCO TELEFONE SQL -->
+  <div style="background: #fff; border-radius: 24px; padding: 32px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); margin-bottom: 32px; border-left: 8px solid #2986CC;">
+    <h4 style="margin: 0 0 16px; color: #2986cc; font-weight: bold;">No Supabase (SQL Editor)</h4>
+    <p style="margin: 0 0 16px; color: #636e72; line-height: 1.8;">
+      Para evoluir a tabela, adicione uma nova coluna:</p>
+
+    <div style="background: #1e1e1e; color: #fff; padding: 18px; border-radius: 16px; font-family: Consolas, monospace; overflow-x: auto; line-height: 1.7;">
+      <pre style="margin:0; white-space: pre; font-family: Consolas, monospace;">
+alter table alunos
+add column telefone text;</pre>
+    </div>
+
+    <p style="margin: 16px 0 0; color: #636e72; line-height: 1.8;">
+      Depois disso, basta adicionar mais um input no formulário e enviar/editar o campo <code>telefone</code> no insert e update.</p>
+  </div>
+
+  <!-- HEADER PASSO A PASSO -->
+  <div style="margin-bottom: 32px;">
+    <div style="background: linear-gradient(135deg, #F39C12 0%, #E67E22 50%, #F1C40F 100%); border-radius: 30px; min-height: 120px; display: flex; align-items: center; justify-content: center; gap: 16px; text-align: center; color: #fff; padding: 24px 32px; box-shadow: 0 15px 35px rgba(243,156,18,0.25); border: 2px solid rgba(255,255,255,0.2);">
+      <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 2rem;">🛠️</div>
+      <div>
+        <div style="font-size: 0.75rem; opacity: 0.9; letter-spacing: 3px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">
+          MÃO NA MASSA</div>
+        <div style="font-size: 2rem; font-weight: 900; letter-spacing: 1px;">
+          Passo a passo de teste</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: #fff; border-radius: 24px; padding: 32px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); margin-bottom: 32px;">
+    <table style="width: 100%; border-collapse: separate; border-spacing: 16px;">
+      <tbody>
+        <tr>
+          <td style="width: 25%; vertical-align: top; text-align: center; background: #f8fbff; border: 1px solid #d8ecff; border-radius: 20px; padding: 24px;">
+            <div style="font-size: 2rem; margin-bottom: 16px;">1️⃣</div>
+            <h5 style="margin: 0 0 16px; color: #2986cc;">Listar</h5>
+            <p style="margin: 0; color: #636e72; line-height: 1.7;">Abra a aplicação e confira se a lista aparece ordenada por nome.</p>
+          </td>
+          <td style="width: 25%; vertical-align: top; text-align: center; background: #fff8f8; border: 1px solid #ffdede; border-radius: 20px; padding: 24px;">
+            <div style="font-size: 2rem; margin-bottom: 16px;">2️⃣</div>
+            <h5 style="margin: 0 0 16px; color: #ff6b6b;">Editar</h5>
+            <p style="margin: 0; color: #636e72; line-height: 1.7;">Clique em “Editar”, mude o curso e clique em “Salvar alterações”.</p>
+          </td>
+          <td style="width: 25%; vertical-align: top; text-align: center; background: #f6fffb; border: 1px solid #d7f7ec; border-radius: 20px; padding: 24px;">
+            <div style="font-size: 2rem; margin-bottom: 16px;">3️⃣</div>
+            <h5 style="margin: 0 0 16px; color: #00b894;">Buscar</h5>
+            <p style="margin: 0; color: #636e72; line-height: 1.7;">Digite um curso no filtro e confirme que a lista muda.</p>
+          </td>
+          <td style="width: 25%; vertical-align: top; text-align: center; background: #fffaf4; border: 1px solid #ffe1bd; border-radius: 20px; padding: 24px;">
+            <div style="font-size: 2rem; margin-bottom: 16px;">4️⃣</div>
+            <h5 style="margin: 0 0 16px; color: #f39c12;">Confirmar no Supabase</h5>
+            <p style="margin: 0; color: #636e72; line-height: 1.7;">No painel, verifique que os dados realmente foram atualizados.</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ATIVIDADE AVALIATIVA -->
+  <div style="border-radius: 25px; background: linear-gradient(135deg, #FFEAA7, #FDCB6E); border-left: 8px solid #FF9500; padding: 28px; box-shadow: 0 15px 35px rgba(0,0,0,0.12);">
+    <h3 style="margin: 0 0 12px; color: #2d3436;">✅ <span style="color: #ff9500;">Atividade avaliativa (entrega no Moodle)</span></h3>
+    <hr style="border: none; border-top: 3px dashed #FF9500; margin: 16px 0 24px;">
+
+    <table style="width: 100%;">
+      <tbody>
+        <tr>
+          <td style="width: 75%; vertical-align: top;">
+            <h5 style="margin: 0 0 16px; color: #2d3436;">CRUD evoluído: editar + buscar + validar</h5>
+            <p style="margin: 0 0 16px; color: #2d3436; line-height: 1.8;">
+              No seu projeto, implemente:</p>
+
+            <ul style="margin: 0; padding-left: 20px; color: #2d3436; line-height: 1.8;">
+              <li><strong>Editar (UPDATE)</strong> pelo formulário (botão Editar + Salvar alterações).</li>
+              <li><strong>Busca por curso</strong> (filtro) com botão Buscar/Limpar.</li>
+              <li><strong>Ordenação por nome</strong> (order('nome')).</li>
+              <li><strong>Validação:</strong> impedir salvar com nome vazio.</li>
+              <li>(Extra) Campo <strong>telefone</strong> (SQL + input + insert/update).</li>
+            </ul>
+
+            <p style="margin: 16px 0 0; color: #2d3436; line-height: 1.8;">
+              <span style="display: inline-block; background: #ffc107; color: #2d3436; font-weight: bold; padding: 8px 14px; border-radius: 999px; font-size: 0.95rem;">ENTREGA</span>
+              Envie <strong>um .zip do projeto</strong> + <strong>2 prints</strong>:
+              (1) tela com edição e busca funcionando; (2) tabela no Supabase mostrando o registro atualizado.</p>
+          </td>
+
+          <td style="width: 25%; text-align: center; vertical-align: middle;">
+            <div style="width: 90px; height: 90px; background: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,0,0,0.12);">📦</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
